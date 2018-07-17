@@ -1,10 +1,12 @@
 package com.nanodegree.bakingapp;
 
+import android.content.Intent;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -22,13 +24,21 @@ public class MainActivity extends AppCompatActivity {
 		RecyclerView recyclerView = findViewById(R.id.main_recycler);
 		recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-		ArrayList<String> recipes = new ArrayList<>();
-		recipes.add("Cookies");
-		recipes.add("Cheesecake");
-		recipes.add("Chicken Pie");
-		recipes.add("Chocolate Cake");
+		ArrayList<Recipe> recipes = new ArrayList<>();
+		recipes.add(new Recipe(1, "Cookies"));
+		recipes.add(new Recipe(2, "Cheesecake"));
+		recipes.add(new Recipe(3, "Chicken Pie"));
+		recipes.add(new Recipe(4, "Chocolate Cake"));
 
-		AdapterRecipe adapter = new AdapterRecipe(recipes);
+		AdapterRecipe adapter = new AdapterRecipe(listener, recipes);
 		recyclerView.setAdapter(adapter);
 	}
+
+	AdapterRecipe.IRecipeClickListener listener = new AdapterRecipe.IRecipeClickListener() {
+		@Override
+		public void onRecipeClicked(Recipe recipe) {
+			Intent intent = new Intent(MainActivity.this, RecipeDetail.class);
+			startActivity(intent);
+		}
+	};
 }

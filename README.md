@@ -10,4 +10,4 @@ https://review.udacity.com/#!/rubrics/829/view
 
 <h1>Licenses</h1>
 <p>Baking image obtained under creative commons license</p>
-https://pixabay.com/en/baking-cupcakes-cup-cake-cooking-1959923/
+<a href="https://pixabay.com/en/baking-cupcakes-cup-cake-cooking-1959923/">https://pixabay.com/en/baking-cupcakes-cup-cake-cooking-1959923/</a>
