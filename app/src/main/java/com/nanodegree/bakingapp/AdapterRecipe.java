@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class AdapterRecipe extends RecyclerView.Adapter<AdapterRecipe.RecipeViewHolder>{
 
@@ -15,10 +16,10 @@ public class AdapterRecipe extends RecyclerView.Adapter<AdapterRecipe.RecipeView
 		void onRecipeClicked(Recipe recipe);
 	}
 
-	private ArrayList<Recipe> recipes;
+	private List<Recipe> recipes;
 	private IRecipeClickListener listener;
 
-	public AdapterRecipe(IRecipeClickListener listener, ArrayList<Recipe> recipes) {
+	public AdapterRecipe(IRecipeClickListener listener, List<Recipe> recipes) {
 		this.listener = listener;
 		this.recipes = recipes;
 	}

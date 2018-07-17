@@ -1,16 +1,28 @@
 package com.nanodegree.bakingapp;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.nanodegree.bakingapp.db.RecipeViewModel;
+import com.nanodegree.bakingapp.db.RecipeViewModelFactory;
+import com.nanodegree.bakingapp.network.RetrofitClient;
+
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
+	private static final String TAG = MainActivity.class.getSimpleName();
+	private RecyclerView recyclerView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -21,17 +33,20 @@ public class MainActivity extends AppCompatActivity {
 		collapsingToolbarLayout.setTitle(getString(R.string.app_name));
 		collapsingToolbarLayout.setExpandedTitleColor(getResources().getColor(android.R.color.transparent));
 
-		RecyclerView recyclerView = findViewById(R.id.main_recycler);
+		recyclerView = findViewById(R.id.main_recycler);
 		recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-		ArrayList<Recipe> recipes = new ArrayList<>();
-		recipes.add(new Recipe(1, "Cookies"));
-		recipes.add(new Recipe(2, "Cheesecake"));
-		recipes.add(new Recipe(3, "Chicken Pie"));
-		recipes.add(new Recipe(4, "Chocolate Cake"));
-
-		AdapterRecipe adapter = new AdapterRecipe(listener, recipes);
-		recyclerView.setAdapter(adapter);
+		RetrofitClient retrofitClient = new RetrofitClient();
+		RecipeViewModelFactory factory = new RecipeViewModelFactory(getApplication(), retrofitClient);
+		RecipeViewModel viewModel = ViewModelProviders.of(this, factory).get(RecipeViewModel.class);
+		viewModel.getMovies().observe(this, new Observer<List<Recipe>>() {
+			@Override
+			public void onChanged(@Nullable List<Recipe> recipes) {
+				Log.d(TAG, "onChanged: " + recipes.size());
+				AdapterRecipe adapter = new AdapterRecipe(listener, recipes);
+				recyclerView.setAdapter(adapter);
+			}
+		});
 	}
 
 	AdapterRecipe.IRecipeClickListener listener = new AdapterRecipe.IRecipeClickListener() {
