@@ -1,10 +1,15 @@
 package com.nanodegree.bakingapp;
 
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+
 import com.google.gson.annotations.SerializedName;
 
+@Entity
 public class Recipe {
 
 	@SerializedName("id")
+	@PrimaryKey
 	private int id;
 	@SerializedName("name")
 	private String name;

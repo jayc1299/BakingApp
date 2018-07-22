@@ -12,7 +12,7 @@
 		android:supportsRtl="true"
 		android:theme="@style/AppTheme">
 
-		<activity android:name=".MainActivity"
+		<activity android:name=".activities.MainActivity"
 			android:theme="@style/NoActionBarTheme">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
@@ -21,11 +21,11 @@
 			</intent-filter>
 		</activity>
 
-		<activity android:name=".RecipeDetail"
-			android:parentActivityName=".MainActivity">
+		<activity android:name=".activities.RecipeDetail"
+			android:parentActivityName=".activities.MainActivity">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value=".MainActivity" />
+				android:value=".activities.MainActivity" />
 		</activity>
 	</application>
 

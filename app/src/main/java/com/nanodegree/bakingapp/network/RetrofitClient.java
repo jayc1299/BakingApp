@@ -1,9 +1,9 @@
 package com.nanodegree.bakingapp.network;
 
-import android.arch.lifecycle.MutableLiveData;
 import android.util.Log;
 
 import com.nanodegree.bakingapp.Recipe;
+import com.nanodegree.bakingapp.db.AppDatabase;
 
 import java.util.List;
 
@@ -27,14 +27,23 @@ public class RetrofitClient {
 		service = retrofit.create(RecipeService.class);
 	}
 
-	public void getRecipes(final MutableLiveData<List<Recipe>> recipes){
+	public void getRecipes(final AppDatabase database){
 		Call<List<Recipe>> repos = service.getRecipes();
 
 		repos.enqueue(new Callback<List<Recipe>>() {
 			@Override
-			public void onResponse(Call<List<Recipe>> call, Response<List<Recipe>> response) {
-				if (response.isSuccessful()) {
-					recipes.postValue(response.body());
+			public void onResponse(Call<List<Recipe>> call, final Response<List<Recipe>> response) {
+				if (response.isSuccessful() && response.body() != null) {
+					Thread thread = new Thread(new Runnable() {
+						@Override
+						public void run() {
+							database.recipesDao().deleteAllRecipes();
+							for (Recipe recipe : response.body()) {
+								database.recipesDao().insertRecipe(recipe);
+							}
+						}});
+					thread.start();
+
 				}
 			}
 

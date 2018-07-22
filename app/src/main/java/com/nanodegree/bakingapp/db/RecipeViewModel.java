@@ -3,29 +3,32 @@ package com.nanodegree.bakingapp.db;
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 
 import com.nanodegree.bakingapp.Recipe;
-import com.nanodegree.bakingapp.network.RetrofitClient;
 
 import java.util.List;
 
 public class RecipeViewModel extends AndroidViewModel {
 
 	private static final String TAG = RecipeViewModel.class.getSimpleName();
-	private MutableLiveData<List<Recipe>> recipes;
+	private LiveData<List<Recipe>> recipes;
+	private AppDatabase database;
 
-	public RecipeViewModel(@NonNull Application application, RetrofitClient retrofitClient) {
+	public RecipeViewModel(@NonNull Application application) {
 		super(application);
+		database = AppDatabase.getInstance(this.getApplication());
 
 		if (recipes == null) {
-			recipes = new MutableLiveData<>();
-			retrofitClient.getRecipes(recipes);
+			recipes = database.recipesDao().getAllRecipes();
 		}
 	}
 
-	public LiveData<List<Recipe>> getMovies() {
+	public LiveData<List<Recipe>> getRecipes() {
 		return recipes;
+	}
+
+	public LiveData<Recipe> getRecipeById(int id) {
+		return database.recipesDao().getRecipeById(id);
 	}
 }

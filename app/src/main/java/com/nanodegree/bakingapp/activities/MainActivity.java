@@ -1,4 +1,4 @@
-package com.nanodegree.bakingapp;
+package com.nanodegree.bakingapp.activities;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
@@ -10,13 +10,14 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.widget.Toast;
 
+import com.nanodegree.bakingapp.adapters.AdapterRecipe;
+import com.nanodegree.bakingapp.R;
+import com.nanodegree.bakingapp.Recipe;
+import com.nanodegree.bakingapp.db.AppDatabase;
 import com.nanodegree.bakingapp.db.RecipeViewModel;
-import com.nanodegree.bakingapp.db.RecipeViewModelFactory;
 import com.nanodegree.bakingapp.network.RetrofitClient;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -37,9 +38,10 @@ public class MainActivity extends AppCompatActivity {
 		recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
 		RetrofitClient retrofitClient = new RetrofitClient();
-		RecipeViewModelFactory factory = new RecipeViewModelFactory(getApplication(), retrofitClient);
-		RecipeViewModel viewModel = ViewModelProviders.of(this, factory).get(RecipeViewModel.class);
-		viewModel.getMovies().observe(this, new Observer<List<Recipe>>() {
+		retrofitClient.getRecipes(AppDatabase.getInstance(this.getApplication()));
+
+		RecipeViewModel viewModel = ViewModelProviders.of(this).get(RecipeViewModel.class);
+		viewModel.getRecipes().observe(this, new Observer<List<Recipe>>() {
 			@Override
 			public void onChanged(@Nullable List<Recipe> recipes) {
 				Log.d(TAG, "onChanged: " + recipes.size());
@@ -53,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
 		@Override
 		public void onRecipeClicked(Recipe recipe) {
 			Intent intent = new Intent(MainActivity.this, RecipeDetail.class);
+			intent.putExtra(RecipeDetail.RECIPE_ID, recipe.getId());
 			startActivity(intent);
 		}
 	};
