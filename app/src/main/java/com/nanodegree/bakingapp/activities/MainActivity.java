@@ -13,7 +13,7 @@ import android.util.Log;
 
 import com.nanodegree.bakingapp.adapters.AdapterRecipe;
 import com.nanodegree.bakingapp.R;
-import com.nanodegree.bakingapp.Recipe;
+import com.nanodegree.bakingapp.holders.Recipe;
 import com.nanodegree.bakingapp.db.AppDatabase;
 import com.nanodegree.bakingapp.db.RecipeViewModel;
 import com.nanodegree.bakingapp.network.RetrofitClient;

@@ -7,7 +7,7 @@ import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Update;
 
-import com.nanodegree.bakingapp.Recipe;
+import com.nanodegree.bakingapp.holders.Recipe;
 
 import java.util.List;
 

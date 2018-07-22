@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.nanodegree.bakingapp.R;
-import com.nanodegree.bakingapp.Recipe;
+import com.nanodegree.bakingapp.holders.Recipe;
 
 import java.util.List;
 

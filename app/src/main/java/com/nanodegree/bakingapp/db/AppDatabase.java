@@ -6,9 +6,10 @@ import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 import android.util.Log;
 
-import com.nanodegree.bakingapp.Recipe;
+import com.nanodegree.bakingapp.holders.Ingredient;
+import com.nanodegree.bakingapp.holders.Recipe;
 
-@Database(entities = {Recipe.class}, version = 1, exportSchema = false)
+@Database(entities = {Recipe.class, Ingredient.class}, version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static final String TAG = AppDatabase.class.getSimpleName();
@@ -29,4 +30,6 @@ public abstract class AppDatabase extends RoomDatabase {
     }
 
     public abstract RecipesDao recipesDao();
+
+    public abstract IngredientsDao ingredientsDao();
 }

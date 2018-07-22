@@ -1,9 +1,12 @@
-package com.nanodegree.bakingapp;
+package com.nanodegree.bakingapp.holders;
 
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
 import com.google.gson.annotations.SerializedName;
+
+import java.util.ArrayList;
 
 @Entity
 public class Recipe {
@@ -17,6 +20,12 @@ public class Recipe {
 	private int servings;
 	@SerializedName("image")
 	private String image;
+	@SerializedName("ingredients")
+	@Ignore
+	private ArrayList<Ingredient> ingreditents;
+	@SerializedName("steps")
+	@Ignore
+	private ArrayList<Step> steps;
 
 	public Recipe() {}
 
@@ -55,5 +64,21 @@ public class Recipe {
 
 	public void setImage(String image) {
 		this.image = image;
+	}
+
+	public ArrayList<Ingredient> getIngreditents() {
+		return ingreditents;
+	}
+
+	public void setIngreditents(ArrayList<Ingredient> ingreditents) {
+		this.ingreditents = ingreditents;
+	}
+
+	public ArrayList<Step> getSteps() {
+		return steps;
+	}
+
+	public void setSteps(ArrayList<Step> steps) {
+		this.steps = steps;
 	}
 }

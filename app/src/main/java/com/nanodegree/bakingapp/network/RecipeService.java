@@ -1,6 +1,6 @@
 package com.nanodegree.bakingapp.network;
 
-import com.nanodegree.bakingapp.Recipe;
+import com.nanodegree.bakingapp.holders.Recipe;
 
 import java.util.List;
 

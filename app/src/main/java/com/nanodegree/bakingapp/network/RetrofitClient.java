@@ -2,11 +2,14 @@ package com.nanodegree.bakingapp.network;
 
 import android.util.Log;
 
-import com.nanodegree.bakingapp.Recipe;
+import com.nanodegree.bakingapp.holders.Ingredient;
+import com.nanodegree.bakingapp.holders.Recipe;
 import com.nanodegree.bakingapp.db.AppDatabase;
 
 import java.util.List;
 
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -19,9 +22,16 @@ public class RetrofitClient {
 	private RecipeService service;
 
 	public RetrofitClient() {
+		HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+		interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+		OkHttpClient client = new OkHttpClient.Builder()
+				.addInterceptor(interceptor)
+				.build();
+
 		Retrofit retrofit = new Retrofit.Builder()
 				.baseUrl("https://d17h27t6h515a5.cloudfront.net/")
 				.addConverterFactory(GsonConverterFactory.create())
+				.client(client)
 				.build();
 
 		service = retrofit.create(RecipeService.class);
@@ -38,12 +48,19 @@ public class RetrofitClient {
 						@Override
 						public void run() {
 							database.recipesDao().deleteAllRecipes();
+							database.ingredientsDao().deleteAllIngredients();
+
 							for (Recipe recipe : response.body()) {
 								database.recipesDao().insertRecipe(recipe);
+
+								//Now insert ingredients
+								for (Ingredient ingredient : recipe.getIngreditents()) {
+									ingredient.setRecipeId(recipe.getId());
+									database.ingredientsDao().insertIngredient(ingredient);
+								}
 							}
 						}});
 					thread.start();
-
 				}
 			}
 
