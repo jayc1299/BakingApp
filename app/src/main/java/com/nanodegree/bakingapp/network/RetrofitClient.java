@@ -5,6 +5,7 @@ import android.util.Log;
 import com.nanodegree.bakingapp.holders.Ingredient;
 import com.nanodegree.bakingapp.holders.Recipe;
 import com.nanodegree.bakingapp.db.AppDatabase;
+import com.nanodegree.bakingapp.holders.Step;
 
 import java.util.List;
 
@@ -48,6 +49,7 @@ public class RetrofitClient {
 						@Override
 						public void run() {
 							database.recipesDao().deleteAllRecipes();
+							database.stepsDao().deleteAllSteps();
 							database.ingredientsDao().deleteAllIngredients();
 
 							for (Recipe recipe : response.body()) {
@@ -57,6 +59,12 @@ public class RetrofitClient {
 								for (Ingredient ingredient : recipe.getIngreditents()) {
 									ingredient.setRecipeId(recipe.getId());
 									database.ingredientsDao().insertIngredient(ingredient);
+								}
+
+								//Now insert steps
+								for (Step step : recipe.getSteps()) {
+									step.setRecipeId(recipe.getId());
+									database.stepsDao().insertStep(step);
 								}
 							}
 						}});

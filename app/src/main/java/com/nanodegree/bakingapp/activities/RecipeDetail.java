@@ -1,8 +1,13 @@
 package com.nanodegree.bakingapp.activities;
 
+import android.arch.core.util.Function;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -28,6 +33,7 @@ public class RecipeDetail extends AppCompatActivity {
 	public static final String RECIPE_ID = "recipeId";
 
 	private RecipeViewModel viewModel;
+	private AdapterRecipeDetail adapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +41,11 @@ public class RecipeDetail extends AppCompatActivity {
 		setContentView(R.layout.activity_detail);
 
 		viewModel = ViewModelProviders.of(this).get(RecipeViewModel.class);
+
+		RecyclerView recyclerView = findViewById(R.id.detail_recycler);
+		recyclerView.setLayoutManager(new LinearLayoutManager(this));
+		adapter = new AdapterRecipeDetail(null, new ArrayList<RecipeComponent>());
+		recyclerView.setAdapter(adapter);
 
 		if(getIntent() != null && getIntent().hasExtra(RECIPE_ID)) {
 			int recipeId = getIntent().getIntExtra(RECIPE_ID, 0);
@@ -48,8 +59,8 @@ public class RecipeDetail extends AppCompatActivity {
 			@Override
 			public void onChanged(@Nullable Recipe recipe) {
 				setTitle(recipe.getName());
-				//TODO: Also get steps
 				getIngredientsFromDb(recipe.getId());
+				getStepsFromDb(recipe.getId());
 			}
 		});
 	}
@@ -58,7 +69,16 @@ public class RecipeDetail extends AppCompatActivity {
 		viewModel.getIngredientsByRecipeId(recipeId).observe(this, new Observer<List<Ingredient>>() {
 			@Override
 			public void onChanged(@Nullable List<Ingredient> ingredients) {
-				setupRecipe(ingredients);
+				setupIngredients(ingredients);
+			}
+		});
+	}
+
+	private void getStepsFromDb(final int recipeId){
+		viewModel.getStepsByRecipeId(recipeId).observe(this, new Observer<List<Step>>() {
+			@Override
+			public void onChanged(@Nullable List<Step> steps) {
+				setupSteps(steps);
 			}
 		});
 	}
@@ -81,7 +101,7 @@ public class RecipeDetail extends AppCompatActivity {
 		}
 	}
 
-	private void setupRecipe(List<Ingredient> ingredients){
+	private void setupIngredients(List<Ingredient> ingredients){
 		//Create a combined list of steps and ingredients
 		ArrayList<RecipeComponent> components = new ArrayList<>();
 
@@ -89,12 +109,22 @@ public class RecipeDetail extends AppCompatActivity {
 			components.addAll(ingredients);
 		}
 
-		Log.d(TAG, "setupRecipe: " + components.size());
+		Log.d(TAG, "setupIngredients: " + components.size());
+
+		adapter.updateIngredients(components);
+	}
+
+	private void setupSteps(List<Step> steps){
+		//Create a combined list of steps and ingredients
+		ArrayList<RecipeComponent> components = new ArrayList<>();
+
+		if(steps != null) {
+			components.addAll(steps);
+		}
+
+		Log.d(TAG, "setupSteps: " + components.size());
 
 		//TODO: Setup adapter & Recycler first, then add to adapter as data is retrieved (add in steps)
-		RecyclerView recyclerView = findViewById(R.id.detail_recycler);
-		recyclerView.setLayoutManager(new LinearLayoutManager(this));
-		AdapterRecipeDetail adapter = new AdapterRecipeDetail(null, components);
-		recyclerView.setAdapter(adapter);
+		adapter.updateSteps(components);
 	}
 }

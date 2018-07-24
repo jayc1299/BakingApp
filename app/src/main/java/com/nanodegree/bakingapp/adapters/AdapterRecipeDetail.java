@@ -13,6 +13,7 @@ import com.nanodegree.bakingapp.holders.Recipe;
 import com.nanodegree.bakingapp.holders.RecipeComponent;
 import com.nanodegree.bakingapp.holders.Step;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AdapterRecipeDetail extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
@@ -71,6 +72,16 @@ public class AdapterRecipeDetail extends RecyclerView.Adapter<RecyclerView.ViewH
 				}
 			});
 		}
+	}
+
+	public void updateIngredients(List<RecipeComponent> ingredients){
+		recipeComponents.addAll(ingredients);
+		notifyDataSetChanged();
+	}
+
+	public void updateSteps(List<RecipeComponent> steps){
+		recipeComponents.addAll(steps);
+		notifyDataSetChanged();
 	}
 
 	@Override

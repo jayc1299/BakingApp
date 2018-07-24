@@ -5,12 +5,13 @@ import android.arch.persistence.room.PrimaryKey;
 
 import com.google.gson.annotations.SerializedName;
 
-@Entity
+@Entity(primaryKeys = {"id", "recipeId"})
 public class Step extends RecipeComponent{
 
 	@SerializedName("id")
-	@PrimaryKey
 	private int id;
+	@SerializedName("recipeId")
+	private int recipeId;
 	@SerializedName("shortDescription")
 	private String shortDescription;
 	@SerializedName("description")
@@ -26,6 +27,14 @@ public class Step extends RecipeComponent{
 
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	public int getRecipeId() {
+		return recipeId;
+	}
+
+	public void setRecipeId(int recipeId) {
+		this.recipeId = recipeId;
 	}
 
 	public String getShortDescription() {

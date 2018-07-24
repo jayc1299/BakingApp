@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 
 import com.nanodegree.bakingapp.holders.Ingredient;
 import com.nanodegree.bakingapp.holders.Recipe;
+import com.nanodegree.bakingapp.holders.Step;
 
 import java.util.List;
 
@@ -36,5 +37,9 @@ public class RecipeViewModel extends AndroidViewModel {
 
 	public LiveData<List<Ingredient>> getIngredientsByRecipeId(int id) {
 		return database.ingredientsDao().getIngredientsByRecipeId(id);
+	}
+
+	public LiveData<List<Step>> getStepsByRecipeId(int id) {
+		return database.stepsDao().getStepsByRecipeId(id);
 	}
 }
