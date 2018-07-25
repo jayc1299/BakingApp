@@ -19,8 +19,8 @@ public interface StepsDao {
     @Query("select * from " + TABLE_NAME)
     LiveData<List<Step>> getAllSteps();
 
-    @Query("select * from " + TABLE_NAME + " where id = :id")
-    LiveData<Step> getStepById(int id);
+    @Query("select * from " + TABLE_NAME + " where id = :stepId AND recipeId = :recipeId")
+    LiveData<Step> getStepByIdAndRecipeId(int stepId, int recipeId);
 
     @Query("select * from " + TABLE_NAME + " where recipeId = :id")
     LiveData<List<Step>> getStepsByRecipeId(int id);

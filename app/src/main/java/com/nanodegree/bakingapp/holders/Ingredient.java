@@ -10,7 +10,7 @@ import com.nanodegree.bakingapp.R;
 import java.text.DecimalFormat;
 
 @Entity
-public class Ingredient extends RecipeComponent{
+public class Ingredient {
 
 	@SerializedName("id")
 	@PrimaryKey(autoGenerate = true)
@@ -62,14 +62,5 @@ public class Ingredient extends RecipeComponent{
 
 	public void setIngredient(String ingredient) {
 		this.ingredient = ingredient;
-	}
-
-	@Override
-	public String getDisplayName(Context context) {
-		return context.getString(R.string.ingredients_display, formatFloatIfNeeded(quantity), measure.toLowerCase(), ingredient);
-	}
-
-	public String formatFloatIfNeeded(float quantity) {
-		return new DecimalFormat("#.##").format(quantity);
 	}
 }

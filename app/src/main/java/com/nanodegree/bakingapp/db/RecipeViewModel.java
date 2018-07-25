@@ -42,4 +42,8 @@ public class RecipeViewModel extends AndroidViewModel {
 	public LiveData<List<Step>> getStepsByRecipeId(int id) {
 		return database.stepsDao().getStepsByRecipeId(id);
 	}
+
+	public LiveData<Step> getStepByStepIdAndRecipeId(int stepId, int recipeId) {
+		return database.stepsDao().getStepByIdAndRecipeId(stepId, recipeId);
+	}
 }

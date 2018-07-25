@@ -7,7 +7,7 @@ import android.content.Context;
 import com.google.gson.annotations.SerializedName;
 
 @Entity(primaryKeys = {"id", "recipeId"})
-public class Step extends RecipeComponent{
+public class Step {
 
 	@SerializedName("id")
 	private int id;
@@ -68,10 +68,5 @@ public class Step extends RecipeComponent{
 
 	public void setThumbnailURL(String thumbnailURL) {
 		this.thumbnailURL = thumbnailURL;
-	}
-
-	@Override
-	public String getDisplayName(Context context) {
-		return description;
 	}
 }

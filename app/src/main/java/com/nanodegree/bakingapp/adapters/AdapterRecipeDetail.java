@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.nanodegree.bakingapp.R;
-import com.nanodegree.bakingapp.holders.RecipeComponent;
 import com.nanodegree.bakingapp.holders.Step;
 
 import java.util.ArrayList;
@@ -18,7 +17,7 @@ import java.util.List;
 public class AdapterRecipeDetail extends RecyclerView.Adapter<AdapterRecipeDetail.StepViewHolder> {
 
     public interface IRecipeComponentClickListener {
-        void onComponentClicked(RecipeComponent component);
+        void onComponentClicked(Step component);
     }
 
     private List<Step> recipeComponents;
@@ -42,7 +41,7 @@ public class AdapterRecipeDetail extends RecyclerView.Adapter<AdapterRecipeDetai
         //step
         final Step step = (Step) recipeComponents.get(position);
         StepViewHolder newHolder = (StepViewHolder) holder;
-        newHolder.title.setText(step.getDisplayName(context));
+        newHolder.title.setText(step.getShortDescription());
         newHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
