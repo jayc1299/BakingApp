@@ -14,4 +14,14 @@
 		<item name="colorAccent">@color/colorAccent</item>
 	</style>
 
+	<style name="DetailItemHeader">
+		<item name="android:textStyle">bold</item>
+		<item name="android:textSize">18sp</item>
+	</style>
+
+	<style name="DetailItem">
+		<item name="android:textSize">14sp</item>
+		<item name="android:layout_marginLeft">5dp</item>
+		<item name="android:padding">5dp</item>
+	</style>
 </resources>

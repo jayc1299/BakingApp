@@ -1,26 +1,24 @@
 package com.nanodegree.bakingapp.activities;
 
-import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.nanodegree.bakingapp.R;
-import com.nanodegree.bakingapp.adapters.AdapterRecipeDetail;
 import com.nanodegree.bakingapp.db.RecipeViewModel;
 import com.nanodegree.bakingapp.holders.Ingredient;
 import com.nanodegree.bakingapp.holders.Recipe;
-import com.nanodegree.bakingapp.holders.RecipeComponent;
 import com.nanodegree.bakingapp.holders.Step;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class RecipeDetail extends AppCompatActivity {
@@ -29,8 +27,8 @@ public class RecipeDetail extends AppCompatActivity {
     public static final String RECIPE_ID = "recipeId";
 
     private RecipeViewModel viewModel;
-    private AdapterRecipeDetail adapter;
-    private MediatorLiveData<List<RecipeComponent>> recipeComponents;
+    private LinearLayout ingredientList;
+    private LinearLayout stepsList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,20 +37,9 @@ public class RecipeDetail extends AppCompatActivity {
 
         viewModel = ViewModelProviders.of(this).get(RecipeViewModel.class);
 
-        //Steup Recycler and Adapter
-        RecyclerView recyclerView = findViewById(R.id.detail_recycler);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new AdapterRecipeDetail(null, new ArrayList<RecipeComponent>());
-        recyclerView.setAdapter(adapter);
-
-        //Observe receipeComponents
-        recipeComponents = new MediatorLiveData<>();
-        recipeComponents.observe(this, new Observer<List<RecipeComponent>>() {
-            @Override
-            public void onChanged(@Nullable List<RecipeComponent> components) {
-                adapter.updateComponents(components);
-            }
-        });
+        //I tried this with a RecyclerView but the look just wasn't what I was looking for when analysing the designs.
+        ingredientList = findViewById(R.id.ingredients_list);
+        stepsList = findViewById(R.id.details_steps_container);
 
         //Get recipe ID from intent
         if (getIntent() != null && getIntent().hasExtra(RECIPE_ID)) {
@@ -74,29 +61,55 @@ public class RecipeDetail extends AppCompatActivity {
             public void onChanged(@Nullable Recipe recipe) {
                 setTitle(recipe.getName());
 
-                recipeComponents.addSource(viewModel.getIngredientsByRecipeId(recipeId), new Observer<List<Ingredient>>() {
+                //get all ingredients for recipeid
+                viewModel.getIngredientsByRecipeId(recipeId).observe(RecipeDetail.this, new Observer<List<Ingredient>>() {
                     @Override
                     public void onChanged(@Nullable List<Ingredient> ingredients) {
-                        ArrayList<RecipeComponent> components = new ArrayList<>();
-                        if (ingredients != null) {
-                            components.addAll(ingredients);
-                        }
-                        recipeComponents.setValue(components);
+                        addIngredients(ingredients);
                     }
                 });
 
-                recipeComponents.addSource(viewModel.getStepsByRecipeId(recipeId), new Observer<List<Step>>() {
+                //Get all steps for receipeId
+                viewModel.getStepsByRecipeId(recipeId).observe(RecipeDetail.this, new Observer<List<Step>>() {
                     @Override
                     public void onChanged(@Nullable List<Step> steps) {
-                        ArrayList<RecipeComponent> components = new ArrayList<>();
-                        if (steps != null) {
-                            components.addAll(steps);
+                        if (steps != null && steps.size() > 0) {
+                            //Deliberately removing step 1 so we skip the introduction title.
+                            steps.remove(0);
+                            addSteps(steps);
                         }
-                        recipeComponents.setValue(components);
                     }
                 });
             }
         });
+    }
+
+    /**
+     * Loop through ingredients and create a view for each ingredient and add it to the linearLayuotu
+     *
+     * @param ingredients List of ingredients
+     */
+    private void addIngredients(List<Ingredient> ingredients) {
+        for (Ingredient ingredient : ingredients) {
+            View ingredientView = getLayoutInflater().inflate(R.layout.item_ingredient, stepsList, false);
+            ((TextView) ingredientView.findViewById(R.id.item_ing_title)).setText(ingredient.getDisplayName(RecipeDetail.this));
+            ingredientList.addView(ingredientView);
+        }
+    }
+
+    /**
+     * Loop through all steps and add to linear layout
+     *
+     * @param steps list of steps
+     */
+    private void addSteps(List<Step> steps) {
+        for (Step step : steps) {
+            View stepView = getLayoutInflater().inflate(R.layout.item_step, stepsList, false);
+            stepView.setTag(step);
+            stepView.setOnClickListener(stepClickListener);
+            ((TextView) stepView.findViewById(R.id.item_step_title)).setText(step.getDisplayName(RecipeDetail.this));
+            stepsList.addView(stepView);
+        }
     }
 
     @Override
@@ -116,4 +129,12 @@ public class RecipeDetail extends AppCompatActivity {
             actionBar.setTitle(title);
         }
     }
+
+    private View.OnClickListener stepClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            Step step = (Step) view.getTag();
+            Toast.makeText(RecipeDetail.this, step.getDisplayName(RecipeDetail.this), Toast.LENGTH_SHORT).show();
+        }
+    };
 }

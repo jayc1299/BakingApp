@@ -2,6 +2,7 @@ package com.nanodegree.bakingapp.holders;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.content.Context;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -70,7 +71,7 @@ public class Step extends RecipeComponent{
 	}
 
 	@Override
-	public String getDisplayName() {
+	public String getDisplayName(Context context) {
 		return description;
 	}
 }

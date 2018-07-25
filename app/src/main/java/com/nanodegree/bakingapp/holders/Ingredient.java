@@ -2,8 +2,12 @@ package com.nanodegree.bakingapp.holders;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.content.Context;
 
 import com.google.gson.annotations.SerializedName;
+import com.nanodegree.bakingapp.R;
+
+import java.text.DecimalFormat;
 
 @Entity
 public class Ingredient extends RecipeComponent{
@@ -61,7 +65,11 @@ public class Ingredient extends RecipeComponent{
 	}
 
 	@Override
-	public String getDisplayName() {
-		return ingredient;
+	public String getDisplayName(Context context) {
+		return context.getString(R.string.ingredients_display, formatFloatIfNeeded(quantity), measure.toLowerCase(), ingredient);
+	}
+
+	public String formatFloatIfNeeded(float quantity) {
+		return new DecimalFormat("#.##").format(quantity);
 	}
 }
