@@ -7,8 +7,10 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
 import com.nanodegree.bakingapp.adapters.AdapterRecipe;
@@ -30,12 +32,18 @@ public class MainActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		CollapsingToolbarLayout collapsingToolbarLayout =  findViewById(R.id.collapsing_toolbar);
-		collapsingToolbarLayout.setTitle(getString(R.string.app_name));
-		collapsingToolbarLayout.setExpandedTitleColor(getResources().getColor(android.R.color.transparent));
-
 		recyclerView = findViewById(R.id.main_recycler);
-		recyclerView.setLayoutManager(new LinearLayoutManager(this));
+		if(!getResources().getBoolean(R.bool.is_tablet)) {
+			CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.collapsing_toolbar);
+			collapsingToolbarLayout.setTitle(getString(R.string.app_name));
+			collapsingToolbarLayout.setExpandedTitleColor(getResources().getColor(android.R.color.transparent));
+			recyclerView.setLayoutManager(new LinearLayoutManager(this));
+		}else{
+			Toolbar toolbar = findViewById(R.id.toolbar);
+			toolbar.setTitle(getString(R.string.app_name));
+			recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+		}
+
 
 		RetrofitClient retrofitClient = new RetrofitClient();
 		retrofitClient.getRecipes(AppDatabase.getInstance(this.getApplication()));
