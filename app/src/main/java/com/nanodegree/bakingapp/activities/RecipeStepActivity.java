@@ -108,7 +108,7 @@ public class RecipeStepActivity extends AppCompatActivity {
 		viewModel.getStepByStepIdAndRecipeId(previousStepId, recipeId).observe(RecipeStepActivity.this, new Observer<Step>() {
 			@Override
 			public void onChanged(@Nullable Step step) {
-				if(step != null) {
+				if(step != null && step.getId() != 0) {
 					Log.d(TAG, "findPreviousStep: " + step.getDescription());
 					previousButton.setVisibility(View.VISIBLE);
 					previousButton.setOnClickListener(new View.OnClickListener() {
@@ -128,12 +128,5 @@ public class RecipeStepActivity extends AppCompatActivity {
 	private void showStep(Step step){
 		TextView longDesc = findViewById(R.id.activity_step_details);
 		longDesc.setText(step.getDescription());
-
-		findViewById(R.id.activity_step_previous).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Toast.makeText(RecipeStepActivity.this, "Previous", Toast.LENGTH_SHORT).show();
-			}
-		});
 	}
 }

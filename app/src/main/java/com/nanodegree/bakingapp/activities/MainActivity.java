@@ -12,6 +12,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
 import com.nanodegree.bakingapp.adapters.AdapterRecipe;
 import com.nanodegree.bakingapp.R;
@@ -26,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
 	private static final String TAG = MainActivity.class.getSimpleName();
 	private RecyclerView recyclerView;
+	private TextView emptyView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_main);
 
 		recyclerView = findViewById(R.id.main_recycler);
+		emptyView = findViewById(R.id.empty_recipes);
+
 		if(!getResources().getBoolean(R.bool.is_tablet)) {
 			CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.collapsing_toolbar);
 			collapsingToolbarLayout.setTitle(getString(R.string.app_name));
@@ -52,9 +57,16 @@ public class MainActivity extends AppCompatActivity {
 		viewModel.getRecipes().observe(this, new Observer<List<Recipe>>() {
 			@Override
 			public void onChanged(@Nullable List<Recipe> recipes) {
-				Log.d(TAG, "onChanged: " + recipes.size());
-				AdapterRecipe adapter = new AdapterRecipe(listener, recipes);
-				recyclerView.setAdapter(adapter);
+				if(recipes != null && recipes.size() > 0) {
+					Log.d(TAG, "onChanged: " + recipes.size());
+					AdapterRecipe adapter = new AdapterRecipe(listener, recipes);
+					recyclerView.setAdapter(adapter);
+					emptyView.setVisibility(View.GONE);
+					recyclerView.setVisibility(View.VISIBLE);
+				}else{
+					recyclerView.setVisibility(View.GONE);
+					emptyView.setVisibility(View.VISIBLE);
+				}
 			}
 		});
 	}
@@ -62,8 +74,8 @@ public class MainActivity extends AppCompatActivity {
 	AdapterRecipe.IRecipeClickListener listener = new AdapterRecipe.IRecipeClickListener() {
 		@Override
 		public void onRecipeClicked(Recipe recipe) {
-			Intent intent = new Intent(MainActivity.this, RecipeDetail.class);
-			intent.putExtra(RecipeDetail.RECIPE_ID, recipe.getId());
+			Intent intent = new Intent(MainActivity.this, RecipeDetailActivity.class);
+			intent.putExtra(RecipeDetailActivity.RECIPE_ID, recipe.getId());
 			startActivity(intent);
 		}
 	};

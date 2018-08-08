@@ -6,4 +6,5 @@
 	<string name="steps_header">Steps</string>
 	<string name="activity_steps_previous">Previous</string>
 	<string name="activity_steps_next">Next</string>
+	<string name="no_recipes">No recipes found. Are you connected to the internet?</string>
 </resources>

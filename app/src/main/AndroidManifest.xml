@@ -21,7 +21,7 @@
 			</intent-filter>
 		</activity>
 
-		<activity android:name=".activities.RecipeDetail"
+		<activity android:name=".activities.RecipeDetailActivity"
 			android:parentActivityName=".activities.MainActivity">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"

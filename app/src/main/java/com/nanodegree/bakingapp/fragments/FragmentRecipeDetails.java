@@ -1,31 +1,34 @@
-package com.nanodegree.bakingapp.activities;
+package com.nanodegree.bakingapp.fragments;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.nanodegree.bakingapp.R;
+import com.nanodegree.bakingapp.activities.RecipeStepActivity;
 import com.nanodegree.bakingapp.db.RecipeViewModel;
 import com.nanodegree.bakingapp.holders.Ingredient;
-import com.nanodegree.bakingapp.holders.Recipe;
 import com.nanodegree.bakingapp.holders.Step;
 import com.nanodegree.bakingapp.utils.UiUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class RecipeDetail extends AppCompatActivity {
+import static com.nanodegree.bakingapp.activities.RecipeDetailActivity.RECIPE_ID;
 
-	public static final String TAG = RecipeDetail.class.getSimpleName();
-	public static final String RECIPE_ID = "recipeId";
+public class FragmentRecipeDetails extends Fragment{
+
+	private static final String TAG = FragmentRecipeDetails.class.getSimpleName();
 
 	private RecipeViewModel viewModel;
 	private LinearLayout ingredientList;
@@ -34,20 +37,33 @@ public class RecipeDetail extends AppCompatActivity {
 	private int recipeId;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_detail);
 
 		viewModel = ViewModelProviders.of(this).get(RecipeViewModel.class);
 		uiUtils = new UiUtils();
+	}
+
+	@Nullable
+	@Override
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+		View view = inflater.inflate(R.layout.fragment_recipe_details, container, false);
 
 		//I tried this with a RecyclerView but the look just wasn't what I was looking for when analysing the designs.
-		ingredientList = findViewById(R.id.ingredients_list);
-		stepsList = findViewById(R.id.details_steps_container);
+		ingredientList = view.findViewById(R.id.frag_details_ingredients_list);
+		stepsList = view.findViewById(R.id.frag_details_steps_container);
+
+		return view;
+	}
+
+	@Override
+	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
 
 		//Get recipe ID from intent
-		if (getIntent() != null && getIntent().hasExtra(RECIPE_ID)) {
-			recipeId = getIntent().getIntExtra(RECIPE_ID, 0);
+		Bundle args = getArguments();
+		if (args != null && args.containsKey(RECIPE_ID)) {
+			recipeId = args.getInt(RECIPE_ID, 0);
 			Log.d(TAG, "RecipeId: " + recipeId);
 			getRecipeFromDb(recipeId);
 		}
@@ -60,32 +76,28 @@ public class RecipeDetail extends AppCompatActivity {
 	 * @param recipeId recipe ID
 	 */
 	private void getRecipeFromDb(final int recipeId) {
-		viewModel.getRecipeById(recipeId).observe(this, new Observer<Recipe>() {
-			@Override
-			public void onChanged(@Nullable Recipe recipe) {
-				setTitle(recipe.getName());
+		if (getActivity() != null && getView() != null) {
 
-				//get all ingredients for recipeid
-				viewModel.getIngredientsByRecipeId(recipeId).observe(RecipeDetail.this, new Observer<List<Ingredient>>() {
-					@Override
-					public void onChanged(@Nullable List<Ingredient> ingredients) {
-						addIngredients(ingredients);
-					}
-				});
+			//get all ingredients for recipeid
+			viewModel.getIngredientsByRecipeId(recipeId).observe(getActivity(), new Observer<List<Ingredient>>() {
+				@Override
+				public void onChanged(@Nullable List<Ingredient> ingredients) {
+					addIngredients(ingredients);
+				}
+			});
 
-				//Get all steps for receipeId
-				viewModel.getStepsByRecipeId(recipeId).observe(RecipeDetail.this, new Observer<List<Step>>() {
-					@Override
-					public void onChanged(@Nullable List<Step> steps) {
-						if (steps != null && steps.size() > 0) {
-							//Deliberately removing step 1 so we skip the introduction title.
-							steps.remove(0);
-							addSteps(steps);
-						}
+			//Get all steps for receipeId
+			viewModel.getStepsByRecipeId(recipeId).observe(getActivity(), new Observer<List<Step>>() {
+				@Override
+				public void onChanged(@Nullable List<Step> steps) {
+					if (steps != null && steps.size() > 0) {
+						//Deliberately removing step 1 so we skip the introduction title.
+						steps.remove(0);
+						addSteps(steps);
 					}
-				});
-			}
-		});
+				}
+			});
+		}
 	}
 
 	/**
@@ -119,29 +131,11 @@ public class RecipeDetail extends AppCompatActivity {
 		}
 	}
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home: {
-				this.finish();
-				return true;
-			}
-		}
-		return super.onOptionsItemSelected(item);
-	}
-
-	private void setTitle(String title) {
-		ActionBar actionBar = RecipeDetail.this.getSupportActionBar();
-		if (actionBar != null) {
-			actionBar.setTitle(title);
-		}
-	}
-
 	private View.OnClickListener stepClickListener = new View.OnClickListener() {
 		@Override
 		public void onClick(View view) {
 			Step step = (Step) view.getTag();
-			Intent intent = new Intent(RecipeDetail.this, RecipeStepActivity.class);
+			Intent intent = new Intent(getActivity(), RecipeStepActivity.class);
 			intent.putExtra(RecipeStepActivity.STEP_ID, step.getId());
 			intent.putExtra(RecipeStepActivity.RECIPE_ID, recipeId);
 			startActivity(intent);

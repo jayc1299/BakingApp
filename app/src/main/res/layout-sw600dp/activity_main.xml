@@ -12,6 +12,15 @@
 		app:titleTextColor="@color/white"
 		android:background="@color/colorPrimary" />
 
+	<TextView
+		android:id="@+id/empty_recipes"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:gravity="center"
+		android:padding="20dp"
+		android:visibility="gone"
+		android:text="@string/no_recipes" />
+
 	<android.support.v7.widget.RecyclerView
 		android:id="@+id/main_recycler"
 		android:layout_width="match_parent"

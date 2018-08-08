@@ -1,6 +1,5 @@
 package com.nanodegree.bakingapp.adapters;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,23 +8,19 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.nanodegree.bakingapp.R;
-import com.nanodegree.bakingapp.holders.Step;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class AdapterRecipeDetail extends RecyclerView.Adapter<AdapterRecipeDetail.StepViewHolder> {
+public class AdapterComponents extends RecyclerView.Adapter<AdapterComponents.StepViewHolder> {
 
     public interface IRecipeComponentClickListener {
-        void onComponentClicked(Step component);
+        void onComponentClicked(int component);
     }
 
-    private List<Step> recipeComponents;
+    private List<String> recipeComponents;
     private IRecipeComponentClickListener listener;
-    private Context context;
 
-    public AdapterRecipeDetail(Context context, IRecipeComponentClickListener listener, List<Step> recipeComponents) {
-        this.context = context;
+    public AdapterComponents(IRecipeComponentClickListener listener, List<String> recipeComponents) {
         this.listener = listener;
         this.recipeComponents = recipeComponents;
     }
@@ -38,24 +33,17 @@ public class AdapterRecipeDetail extends RecyclerView.Adapter<AdapterRecipeDetai
 
     @Override
     public void onBindViewHolder(@NonNull StepViewHolder holder, int position) {
-        //step
-        final Step step = (Step) recipeComponents.get(position);
-        StepViewHolder newHolder = (StepViewHolder) holder;
-        newHolder.title.setText(step.getShortDescription());
-        newHolder.itemView.setOnClickListener(new View.OnClickListener() {
+        final int viewPosition = position;
+        final String component = recipeComponents.get(position);
+        holder.title.setText(component);
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (listener != null) {
-                    listener.onComponentClicked(step);
+                    listener.onComponentClicked(viewPosition);
                 }
             }
         });
-    }
-
-    public void updateSteps(List<Step> steps) {
-        recipeComponents = new ArrayList<>();
-        recipeComponents.addAll(steps);
-        notifyDataSetChanged();
     }
 
     @Override
