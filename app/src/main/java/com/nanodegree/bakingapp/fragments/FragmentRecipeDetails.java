@@ -21,7 +21,6 @@ import com.nanodegree.bakingapp.holders.Ingredient;
 import com.nanodegree.bakingapp.holders.Step;
 import com.nanodegree.bakingapp.utils.UiUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.nanodegree.bakingapp.activities.RecipeDetailActivity.RECIPE_ID;
@@ -138,6 +137,7 @@ public class FragmentRecipeDetails extends Fragment{
 			Intent intent = new Intent(getActivity(), RecipeStepActivity.class);
 			intent.putExtra(RecipeStepActivity.STEP_ID, step.getId());
 			intent.putExtra(RecipeStepActivity.RECIPE_ID, recipeId);
+			intent.putExtra(RecipeStepActivity.STEP_NAME, step.getShortDescription());
 			startActivity(intent);
 		}
 	};

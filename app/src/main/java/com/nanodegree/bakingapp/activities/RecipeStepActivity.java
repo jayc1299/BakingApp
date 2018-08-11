@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.nanodegree.bakingapp.R;
 import com.nanodegree.bakingapp.db.RecipeViewModel;
@@ -19,7 +18,7 @@ public class RecipeStepActivity extends AppCompatActivity {
 
 	public static final String RECIPE_ID = "recipeId";
 	public static final String STEP_ID = "stepId";
-	public static final String RECIPE_NAME = "recipeName";
+	public static final String STEP_NAME = "stepName";
 	private static final String TAG = RecipeStepActivity.class.getSimpleName();
 
 	private RecipeViewModel viewModel;
@@ -39,7 +38,7 @@ public class RecipeStepActivity extends AppCompatActivity {
 
 		if (getIntent() != null) {
 			//Get recipe name
-			String recipeName = getIntent().getStringExtra(RECIPE_NAME);
+			String recipeName = getIntent().getStringExtra(STEP_NAME);
 			if(recipeName != null && recipeName.length() > 0) {
 				setTitle(recipeName);
 			}
@@ -87,7 +86,6 @@ public class RecipeStepActivity extends AppCompatActivity {
 			@Override
 			public void onChanged(@Nullable Step step) {
 				if(step != null) {
-					Log.d(TAG, "findNextStep: " + step.getDescription());
 					nextButton.setVisibility(View.VISIBLE);
 					nextButton.setOnClickListener(new View.OnClickListener() {
 						@Override
@@ -109,7 +107,6 @@ public class RecipeStepActivity extends AppCompatActivity {
 			@Override
 			public void onChanged(@Nullable Step step) {
 				if(step != null && step.getId() != 0) {
-					Log.d(TAG, "findPreviousStep: " + step.getDescription());
 					previousButton.setVisibility(View.VISIBLE);
 					previousButton.setOnClickListener(new View.OnClickListener() {
 						@Override
@@ -128,5 +125,6 @@ public class RecipeStepActivity extends AppCompatActivity {
 	private void showStep(Step step){
 		TextView longDesc = findViewById(R.id.activity_step_details);
 		longDesc.setText(step.getDescription());
+		setTitle(step.getShortDescription());
 	}
 }
