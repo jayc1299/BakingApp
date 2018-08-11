@@ -3,6 +3,7 @@ package com.nanodegree.bakingapp.fragments;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -12,14 +13,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.nanodegree.bakingapp.R;
 import com.nanodegree.bakingapp.adapters.AdapterComponents;
 import com.nanodegree.bakingapp.db.RecipeViewModel;
-import com.nanodegree.bakingapp.holders.Ingredient;
 import com.nanodegree.bakingapp.holders.Step;
-import com.nanodegree.bakingapp.utils.UiUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +37,11 @@ public class FragmentStepList extends Fragment{
 	private ArrayList<String> recipeDetails;
 	private AdapterComponents adapter;
 	private IStepListClicked listener;
+
+	private static final String SAVED_LAYOUT_MANAGER = "saved_layout_manager";
+	private static final String SAVED_SELECTED_ITEM = "saved_selected_item";
+	private Parcelable layoutManagerSavedState;
+	private int selectedItemSavedSate = RecyclerView.NO_POSITION;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -69,10 +72,29 @@ public class FragmentStepList extends Fragment{
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
+		Log.d(TAG, "onActivityCreated: ");
 		adapter = new AdapterComponents( componentClickListener, recipeDetails);
 		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 		recyclerView.setAdapter(adapter);
 		getRecipeDetailsFromDb(recipeId);
+	}
+
+	@Override
+	public void onSaveInstanceState(@NonNull Bundle outState) {
+		Parcelable state = recyclerView.getLayoutManager().onSaveInstanceState();
+		int selectedItem = adapter.getSelectedItemPosition();
+		outState.putParcelable(SAVED_LAYOUT_MANAGER, state);
+		outState.putInt(SAVED_SELECTED_ITEM, selectedItem);
+		super.onSaveInstanceState(outState);
+	}
+
+	@Override
+	public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+		super.onViewStateRestored(savedInstanceState);
+		if (savedInstanceState != null) {
+			layoutManagerSavedState = savedInstanceState.getParcelable(SAVED_LAYOUT_MANAGER);
+			selectedItemSavedSate = savedInstanceState.getInt(SAVED_SELECTED_ITEM, RecyclerView.NO_POSITION);
+		}
 	}
 
 	public void setStepClickedListener(IStepListClicked listener){
@@ -80,20 +102,14 @@ public class FragmentStepList extends Fragment{
 	}
 
 	private void getRecipeDetailsFromDb(final int recipeId) {
+		Log.d(TAG, "getRecipeDetailsFromDb: ");
 		if (getActivity() != null) {
-
-			//get all ingredients for recipeid
-			viewModel.getIngredientsByRecipeId(recipeId).observe(getActivity(), new Observer<List<Ingredient>>() {
-				@Override
-				public void onChanged(@Nullable List<Ingredient> ingredients) {
-					//addIngredients(ingredients);
-				}
-			});
 
 			//Get all steps for receipeId
 			viewModel.getStepsByRecipeId(recipeId).observe(getActivity(), new Observer<List<Step>>() {
 				@Override
 				public void onChanged(@Nullable List<Step> steps) {
+					Log.d(TAG, "onChanged: ");
 					if (steps != null && steps.size() > 0) {
 						//Deliberately removing step 1 so we skip the introduction title.
 						steps.remove(0);
@@ -101,7 +117,16 @@ public class FragmentStepList extends Fragment{
 						for (Step step : steps) {
 							recipeDetails.add(step.getShortDescription());
 						}
+
 						adapter.notifyDataSetChanged();
+
+						if (layoutManagerSavedState != null) {
+							Log.d(TAG, "onChanged: SavedState Not Null");
+							recyclerView.getLayoutManager().onRestoreInstanceState(layoutManagerSavedState);
+						}
+						if(selectedItemSavedSate != RecyclerView.NO_POSITION) {
+							adapter.setSelected(selectedItemSavedSate);
+						}
 					}
 				}
 			});
@@ -111,6 +136,7 @@ public class FragmentStepList extends Fragment{
 	private AdapterComponents.IRecipeComponentClickListener componentClickListener = new AdapterComponents.IRecipeComponentClickListener() {
 		@Override
 		public void onComponentClicked(int component) {
+			Log.d(TAG, "onComponentClicked: " + component);
 			if(listener != null){
 				listener.onStepClicked(component == 0, component);
 			}

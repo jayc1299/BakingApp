@@ -19,12 +19,14 @@ import com.nanodegree.bakingapp.holders.Recipe;
 
 public class RecipeDetailActivity extends AppCompatActivity {
 
-	public static final String TAG = RecipeDetailActivity.class.getSimpleName();
 	public static final String RECIPE_ID = "recipeId";
+	private static final String TAG = RecipeDetailActivity.class.getSimpleName();
+	private static final String STATE_RECIPIE_ID = "state_recipe_id";
+	private static final String STATE_TITLE = "state_title";
 
 	private RecipeViewModel viewModel;
 	private int recipeId;
-	private FragmentStep fragDetails;
+	private String recipeTitle;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +41,12 @@ public class RecipeDetailActivity extends AppCompatActivity {
 			Log.d(TAG, "RecipeId: " + recipeId);
 			getRecipeFromDb(recipeId);
 		}
+
+		//Need to re-attatch the listener on rotate
+		if(savedInstanceState != null){
+			FragmentStepList fragStepList = (FragmentStepList) getSupportFragmentManager().findFragmentByTag(FragmentStepList.class.getSimpleName());
+			fragStepList.setStepClickedListener(stepListClickedListener);
+		}
 	}
 
 	@Override
@@ -52,7 +60,24 @@ public class RecipeDetailActivity extends AppCompatActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		outState.putInt(STATE_RECIPIE_ID, recipeId);
+		outState.putString(STATE_TITLE, recipeTitle);
+		super.onSaveInstanceState(outState);
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		if(savedInstanceState != null) {
+			recipeId = savedInstanceState.getInt(STATE_RECIPIE_ID);
+			setTitle(savedInstanceState.getString(STATE_TITLE));
+		}
+		super.onRestoreInstanceState(savedInstanceState);
+	}
+
 	private void setTitle(String title) {
+		recipeTitle = title;
 		ActionBar actionBar = RecipeDetailActivity.this.getSupportActionBar();
 		if (actionBar != null) {
 			actionBar.setTitle(title);
@@ -76,6 +101,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
 	}
 
 	private void loadFragments(int recipeId){
+		Log.d(TAG, "loadFragments: ");
 		FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 		Bundle bundle = new Bundle();
 		bundle.putInt(RECIPE_ID, recipeId);
@@ -83,13 +109,13 @@ public class RecipeDetailActivity extends AppCompatActivity {
 		//Are we a two pain mode for tablets?
 		if (findViewById(R.id.activity_detail_list) != null) {
 			//List
-			FragmentStepList fragList = new FragmentStepList();
-			fragList.setStepClickedListener(stepListClickedListener);
-			fragList.setArguments(bundle);
+			FragmentStepList fragStepList = new FragmentStepList();
+			fragStepList.setStepClickedListener(stepListClickedListener);
+			fragStepList.setArguments(bundle);
 			//Details
-			fragDetails = new FragmentStep();
+			FragmentStep fragDetails = new FragmentStep();
 			fragDetails.setArguments(bundle);
-			fragmentTransaction.replace(R.id.activity_detail_list, fragList, fragList.getClass().getSimpleName());
+			fragmentTransaction.replace(R.id.activity_detail_list, fragStepList, fragStepList.getClass().getSimpleName());
 			fragmentTransaction.replace(R.id.activity_detail_contents, fragDetails, fragDetails.getClass().getSimpleName());
 		}else{
 			//Single pain mode.
@@ -103,8 +129,12 @@ public class RecipeDetailActivity extends AppCompatActivity {
 	private FragmentStepList.IStepListClicked stepListClickedListener = new FragmentStepList.IStepListClicked() {
 		@Override
 		public void onStepClicked(boolean ingredients, int stepId) {
-			if (fragDetails != null) {
-				fragDetails.showDetails(ingredients, recipeId, stepId);
+			Log.d(TAG, "onStepClicked: " + stepId);
+			FragmentStep fragmentStep = (FragmentStep) getSupportFragmentManager().findFragmentByTag(FragmentStep.class.getSimpleName());
+			if (fragmentStep != null) {
+				fragmentStep.showDetails(ingredients, recipeId, stepId);
+			}else{
+				Log.d(TAG, "onStepClicked: Not found");
 			}
 		}
 	};
