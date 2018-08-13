@@ -47,14 +47,16 @@ public class IngredientsWidget extends AppWidgetProvider {
 		uiUtils = new UiUtils();
 
 		for (final int appWidgetId : appWidgetIds) {
+			//Get recipe id associated with appWidgetId
 			final int recipeId = IngredientsWidgetConfigureActivity.getRecipeIdFromPref(context, appWidgetId);
-			//updateAppWidget(context, appWidgetManager, appWidgetId);
 
 			if (recipeId > 0) {
+				//Need to access DB on a thread. Can't use viewModel in a widget, sigh.
 				Thread thread = new Thread(new Runnable() {
 					@Override
 					public void run() {
 						Log.d(TAG, "run recipe: " + recipeId);
+						//Get the ingredients for a given recipeId from the DB.
 						Cursor cursor = database.ingredientsDao().getIngredientsByRecipeIdForWidget(recipeId);
 						if(cursor != null && cursor.moveToFirst()) {
 
@@ -68,8 +70,10 @@ public class IngredientsWidget extends AppWidgetProvider {
 								ingredients.add(ingredient);
 							}
 
+							//Convert ingredient list into a string
 							String ingredientList = uiUtils.buildFullIngredientList(context, ingredients);
 
+							//Call static method to set widget UI
 							IngredientsWidget.updateAppWidget(context,
 									appWidgetManager,
 									appWidgetId,
