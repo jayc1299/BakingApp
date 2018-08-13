@@ -36,16 +36,19 @@ public class RecipeDetailActivity extends AppCompatActivity {
 		viewModel = ViewModelProviders.of(this).get(RecipeViewModel.class);
 
 		//Get recipe ID from intent
-		if (savedInstanceState == null && getIntent() != null && getIntent().hasExtra(RECIPE_ID)) {
+		if(getIntent() != null && getIntent().hasExtra(RECIPE_ID)) {
 			recipeId = getIntent().getIntExtra(RECIPE_ID, 0);
-			Log.d(TAG, "RecipeId: " + recipeId);
-			getRecipeFromDb(recipeId);
+			Log.d(TAG, "onCreate RecipeId: " + recipeId);
 		}
 
-		//Need to re-attatch the listener on rotate
-		if(savedInstanceState != null){
+		if (savedInstanceState == null){
+			getRecipeFromDb(recipeId);
+		}else{
+			//Need to re-attatch the listener on rotate
 			FragmentStepList fragStepList = (FragmentStepList) getSupportFragmentManager().findFragmentByTag(FragmentStepList.class.getSimpleName());
-			fragStepList.setStepClickedListener(stepListClickedListener);
+			if(fragStepList != null) {
+				fragStepList.setStepClickedListener(stepListClickedListener);
+			}
 		}
 	}
 
@@ -101,7 +104,6 @@ public class RecipeDetailActivity extends AppCompatActivity {
 	}
 
 	private void loadFragments(int recipeId){
-		Log.d(TAG, "loadFragments: ");
 		FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 		Bundle bundle = new Bundle();
 		bundle.putInt(RECIPE_ID, recipeId);
@@ -129,7 +131,6 @@ public class RecipeDetailActivity extends AppCompatActivity {
 	private FragmentStepList.IStepListClicked stepListClickedListener = new FragmentStepList.IStepListClicked() {
 		@Override
 		public void onStepClicked(boolean ingredients, int stepId) {
-			Log.d(TAG, "onStepClicked: " + stepId);
 			FragmentStep fragmentStep = (FragmentStep) getSupportFragmentManager().findFragmentByTag(FragmentStep.class.getSimpleName());
 			if (fragmentStep != null) {
 				fragmentStep.showDetails(ingredients, recipeId, stepId);

@@ -1,5 +1,6 @@
 package com.nanodegree.bakingapp.widgets;
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
@@ -10,6 +11,8 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.nanodegree.bakingapp.R;
+import com.nanodegree.bakingapp.activities.MainActivity;
+import com.nanodegree.bakingapp.activities.RecipeDetailActivity;
 import com.nanodegree.bakingapp.db.AppDatabase;
 import com.nanodegree.bakingapp.holders.Ingredient;
 import com.nanodegree.bakingapp.utils.UiUtils;
@@ -30,9 +33,16 @@ public class IngredientsWidget extends AppWidgetProvider {
 		int recipeId = IngredientsWidgetConfigureActivity.getRecipeIdFromPref(context, appWidgetId);
 		Log.d(TAG, "updateAppWidget appWidgetId: " + appWidgetId + "==" + recipeId);
 
+		//This is what happens when you click on the widget
+		Intent intent = new Intent(context, RecipeDetailActivity.class);
+		intent.putExtra(RecipeDetailActivity.RECIPE_ID, recipeId);
+		PendingIntent pendingIntent = PendingIntent.getActivity(context, recipeId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
 		// Construct the RemoteViews object
 		RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.ingredients_widget);
 		views.setTextViewText(R.id.widget_ingredient_list, ingredients);
+
+		views.setOnClickPendingIntent(R.id.widget_layout, pendingIntent);
 
 		// Instruct the widget manager to update the widget
 		appWidgetManager.updateAppWidget(appWidgetId, views);
