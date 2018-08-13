@@ -12,6 +12,10 @@ import java.text.DecimalFormat;
 @Entity
 public class Ingredient {
 
+	public static final String INGREDIENT_COLUMN_NAME = "ingredient";
+	public static final String QUANTITY_COLUMN_NAME = "quantity";
+	public static final String MEASURE_COLUMN_NAME = "measure";
+
 	@SerializedName("id")
 	@PrimaryKey(autoGenerate = true)
 	private int id;

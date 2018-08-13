@@ -6,6 +6,7 @@ import com.nanodegree.bakingapp.holders.Ingredient;
 import com.nanodegree.bakingapp.holders.Recipe;
 import com.nanodegree.bakingapp.db.AppDatabase;
 import com.nanodegree.bakingapp.holders.Step;
+import com.nanodegree.bakingapp.widgets.IngredientsWidget;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class RetrofitClient {
 		HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
 		interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 		OkHttpClient client = new OkHttpClient.Builder()
-				.addInterceptor(interceptor)
+				//.addInterceptor(interceptor)
 				.build();
 
 		Retrofit retrofit = new Retrofit.Builder()

@@ -6,6 +6,7 @@ import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Update;
+import android.database.Cursor;
 
 import com.nanodegree.bakingapp.holders.Ingredient;
 
@@ -36,4 +37,7 @@ public interface IngredientsDao {
 
     @Query("delete from " + TABLE_NAME)
     public void deleteAllIngredients();
+
+    @Query("select * from " + TABLE_NAME + " where recipeId = :id")
+	Cursor getIngredientsByRecipeIdForWidget(int id);
 }

@@ -124,9 +124,7 @@ public class FragmentStep extends Fragment{
 
 		for (Ingredient ingredient : ingredients) {
 			View ingredientView = getLayoutInflater().inflate(R.layout.item_ingredient, ingredientList, false);
-			String ingredientDisplayName = getString(R.string.ingredients_display,
-					uiUtils.formatFloatIfNeeded(ingredient.getQuantity()),
-					ingredient.getMeasure().toLowerCase(), ingredient.getIngredient());
+			String ingredientDisplayName = uiUtils.buildSingleIngredientString(getActivity(), ingredient);
 			((TextView) ingredientView.findViewById(R.id.item_ing_title)).setText(ingredientDisplayName);
 			ingredientList.addView(ingredientView);
 		}

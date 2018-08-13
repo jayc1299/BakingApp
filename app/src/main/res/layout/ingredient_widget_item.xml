@@ -7,7 +7,6 @@
 
     <TextView
         android:id="@+id/item_ing_title"
-        style="@style/DetailItem"
         tools:text="Baking Soda"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />

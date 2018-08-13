@@ -21,6 +21,7 @@ import com.nanodegree.bakingapp.holders.Recipe;
 import com.nanodegree.bakingapp.db.AppDatabase;
 import com.nanodegree.bakingapp.db.RecipeViewModel;
 import com.nanodegree.bakingapp.network.RetrofitClient;
+import com.nanodegree.bakingapp.widgets.IngredientsWidget;
 
 import java.util.List;
 
@@ -52,13 +53,13 @@ public class MainActivity extends AppCompatActivity {
 
 		RetrofitClient retrofitClient = new RetrofitClient();
 		retrofitClient.getRecipes(AppDatabase.getInstance(this.getApplication()));
+		IngredientsWidget.sendRefreshBroadcast(this);
 
 		RecipeViewModel viewModel = ViewModelProviders.of(this).get(RecipeViewModel.class);
 		viewModel.getRecipes().observe(this, new Observer<List<Recipe>>() {
 			@Override
 			public void onChanged(@Nullable List<Recipe> recipes) {
 				if(recipes != null && recipes.size() > 0) {
-					Log.d(TAG, "onChanged: " + recipes.size());
 					AdapterRecipe adapter = new AdapterRecipe(listener, recipes);
 					recyclerView.setAdapter(adapter);
 					emptyView.setVisibility(View.GONE);
