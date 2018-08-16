@@ -13,12 +13,11 @@
 		android:layout_above="@+id/step_buttons"
 		android:orientation="vertical">
 
-		<LinearLayout
+		<com.google.android.exoplayer2.ui.PlayerView
+			android:id="@+id/exo_player"
 			android:layout_width="match_parent"
 			android:layout_height="0dp"
-			android:layout_weight="1"
-			android:background="#AA669999"
-			android:orientation="vertical"/>
+			android:layout_weight="1" />
 
 		<TextView
 			android:id="@+id/activity_step_details"
@@ -35,7 +34,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:weightSum="2"
-		android:layout_marginBottom="20dp"
+		android:layout_marginBottom="15dp"
 		android:layout_alignParentBottom="true"
 		android:orientation="horizontal">
 

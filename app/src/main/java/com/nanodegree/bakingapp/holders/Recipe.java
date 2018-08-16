@@ -29,6 +29,7 @@ public class Recipe {
 
 	public Recipe() {}
 
+	@Ignore
 	public Recipe(int id, String name) {
 		this.id = id;
 		this.name = name;
