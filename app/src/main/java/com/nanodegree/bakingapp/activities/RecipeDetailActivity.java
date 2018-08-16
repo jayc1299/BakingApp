@@ -41,13 +41,15 @@ public class RecipeDetailActivity extends AppCompatActivity {
 			Log.d(TAG, "onCreate RecipeId: " + recipeId);
 		}
 
-		if (savedInstanceState == null){
-			getRecipeFromDb(recipeId);
-		}else{
-			//Need to re-attatch the listener on rotate
-			FragmentStepList fragStepList = (FragmentStepList) getSupportFragmentManager().findFragmentByTag(FragmentStepList.class.getSimpleName());
-			if(fragStepList != null) {
-				fragStepList.setStepClickedListener(stepListClickedListener);
+		if (recipeId > 0) {
+			if (savedInstanceState == null) {
+				getRecipeFromDb(recipeId);
+			} else {
+				//Need to re-attatch the listener on rotate
+				FragmentStepList fragStepList = (FragmentStepList) getSupportFragmentManager().findFragmentByTag(FragmentStepList.class.getSimpleName());
+				if (fragStepList != null) {
+					fragStepList.setStepClickedListener(stepListClickedListener);
+				}
 			}
 		}
 	}

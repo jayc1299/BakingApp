@@ -2,10 +2,12 @@ package com.nanodegree.bakingapp.fragments;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +15,20 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.ui.PlayerControlView;
+import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.util.Util;
 import com.nanodegree.bakingapp.R;
 import com.nanodegree.bakingapp.db.RecipeViewModel;
 import com.nanodegree.bakingapp.holders.Ingredient;
@@ -32,12 +48,14 @@ public class FragmentStep extends Fragment{
 	private UiUtils uiUtils;
 
 	private TextView description;
-	private LinearLayout movieView;
 	private LinearLayout ingredientList;
 
 	private boolean showIngredients;
 	private int recipeId = 0;
 	private int stepId = 0;
+
+	private PlayerView exoPlayerView;
+	private SimpleExoPlayer exoPlayer;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -53,8 +71,8 @@ public class FragmentStep extends Fragment{
 		View view = inflater.inflate(R.layout.fragment_step, container, false);
 
 		description = view.findViewById(R.id.fragment_step_details);
-		movieView = view.findViewById(R.id.fragment_step_movie);
 		ingredientList = view.findViewById(R.id.fragment_step_ingredients);
+		exoPlayerView = view.findViewById(R.id.fragment_step_movie);
 
 		return view;
 	}
@@ -77,6 +95,12 @@ public class FragmentStep extends Fragment{
 					savedInstanceState.getInt(STEP_ID_STATE)
 			);
 		}
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		exoPlayer.release();
 	}
 
 	public void showDetails(boolean showIngredients, int recipeId, int stepId){
@@ -106,8 +130,11 @@ public class FragmentStep extends Fragment{
 					if (step != null) {
 						description.setText(step.getDescription());
 						description.setVisibility(View.VISIBLE);
-						movieView.setVisibility(View.VISIBLE);
+						exoPlayerView.setVisibility(View.VISIBLE);
 						ingredientList.setVisibility(View.GONE);
+
+						setupExoPlayer();
+						setupMedia(Uri.parse(step.getVideoUrl()));
 					}else{
 						Log.d(TAG, "Step null");
 					}
@@ -118,7 +145,7 @@ public class FragmentStep extends Fragment{
 
 	private void showIngredients(List<Ingredient> ingredients) {
 		description.setVisibility(View.GONE);
-		movieView.setVisibility(View.GONE);
+		exoPlayerView.setVisibility(View.GONE);
 		ingredientList.removeAllViews();
 		ingredientList.setVisibility(View.VISIBLE);
 
@@ -127,6 +154,51 @@ public class FragmentStep extends Fragment{
 			String ingredientDisplayName = uiUtils.buildSingleIngredientString(getActivity(), ingredient);
 			((TextView) ingredientView.findViewById(R.id.item_ing_title)).setText(ingredientDisplayName);
 			ingredientList.addView(ingredientView);
+		}
+	}
+
+	private void setupExoPlayer(){
+		//1) Do stuff
+		BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+		TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(bandwidthMeter);
+		DefaultTrackSelector trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
+
+		// 2. Create the player
+		exoPlayer = ExoPlayerFactory.newSimpleInstance(getActivity(), trackSelector);
+
+		// 3. Bind the player to the view.
+		exoPlayerView.setPlayer(exoPlayer);
+	}
+
+	private void setupMedia(Uri mediaUri){
+		if (getActivity() != null && !getActivity().isFinishing()) {
+			Log.d(TAG, "setupMedia: " + mediaUri.toString());
+
+			if (TextUtils.isEmpty(mediaUri.toString())) {
+				exoPlayerView.hideController();
+				exoPlayerView.setEnabled(false);
+				exoPlayerView.setControllerVisibilityListener(new PlayerControlView.VisibilityListener() {
+					@Override
+					public void onVisibilityChange(int visibility) {
+						exoPlayerView.hideController();
+					}
+				});
+				return;
+			} else {
+				exoPlayerView.showController();
+				exoPlayerView.setEnabled(true);
+				exoPlayerView.setControllerVisibilityListener(null);
+			}
+
+			// Measures bandwidth during playback. Can be null if not required.
+			DefaultBandwidthMeter defaultBandwidthMeter = new DefaultBandwidthMeter();
+			// Produces DataSource instances through which media data is loaded.
+			DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getActivity(),
+					Util.getUserAgent(getActivity(), getString(R.string.app_name)), defaultBandwidthMeter);
+			// This is the MediaSource representing the media to be played.
+			MediaSource videoSource = new ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(mediaUri);
+			// Prepare the player with the source.
+			exoPlayer.prepare(videoSource);
 		}
 	}
 }
