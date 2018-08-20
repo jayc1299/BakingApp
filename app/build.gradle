@@ -30,6 +30,7 @@ dependencies {
 
 	//Media player
 	compile 'com.google.android.exoplayer:exoplayer:2.8.3'
+    compile 'com.squareup.picasso:picasso:2.71828'
 
 	//Retrofit
 	implementation 'com.squareup.retrofit2:retrofit:2.4.0'

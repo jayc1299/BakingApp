@@ -4,6 +4,7 @@
 	<string name="ingredients_display">%1$s %2$s %3$s</string>
 	<string name="ingredients_header">Ingredients</string>
 	<string name="steps_header">Steps</string>
+	<string name="steps_image">Step Image</string>
 	<string name="activity_steps_previous">Previous</string>
 	<string name="activity_steps_next">Next</string>
 	<string name="no_recipes">No recipes found. Are you connected to the internet?</string>

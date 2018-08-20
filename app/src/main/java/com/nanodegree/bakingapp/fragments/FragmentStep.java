@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -34,6 +35,7 @@ import com.nanodegree.bakingapp.db.RecipeViewModel;
 import com.nanodegree.bakingapp.holders.Ingredient;
 import com.nanodegree.bakingapp.holders.Step;
 import com.nanodegree.bakingapp.utils.UiUtils;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -43,16 +45,21 @@ public class FragmentStep extends Fragment{
 	private static final String SHOW_INGREDIENTS_STATE = "show_ingredients_state";
 	private static final String RECIPIE_ID_STATE = "recipe_id_state";
 	private static final String STEP_ID_STATE = "step_id_state";
+	private static final String VIDEO_PLAYER_STATE = "video_player_state";
+	private static final String VIDEO_PLAYER_PLAYING_STATE = "video_player_playing_state";
 
 	private RecipeViewModel viewModel;
 	private UiUtils uiUtils;
 
 	private TextView description;
 	private LinearLayout ingredientList;
+	private ImageView thumbnail;
 
 	private boolean showIngredients;
 	private int recipeId = 0;
 	private int stepId = 0;
+	private long exoPlayerState = 0L;
+	private boolean isPlaying = false;
 
 	private PlayerView exoPlayerView;
 	private SimpleExoPlayer exoPlayer;
@@ -73,6 +80,7 @@ public class FragmentStep extends Fragment{
 		description = view.findViewById(R.id.fragment_step_details);
 		ingredientList = view.findViewById(R.id.fragment_step_ingredients);
 		exoPlayerView = view.findViewById(R.id.fragment_step_movie);
+		thumbnail = view.findViewById(R.id.fragment_step_thumbnail);
 
 		return view;
 	}
@@ -82,6 +90,10 @@ public class FragmentStep extends Fragment{
 		outState.putBoolean(SHOW_INGREDIENTS_STATE, showIngredients);
 		outState.putInt(RECIPIE_ID_STATE, recipeId);
 		outState.putInt(STEP_ID_STATE, stepId);
+		if(exoPlayer != null) {
+			outState.putLong(VIDEO_PLAYER_STATE, exoPlayer.getContentPosition());
+			outState.putBoolean(VIDEO_PLAYER_PLAYING_STATE, exoPlayer.getPlayWhenReady());
+		}
 		super.onSaveInstanceState(outState);
 	}
 
@@ -94,13 +106,17 @@ public class FragmentStep extends Fragment{
 					savedInstanceState.getInt(RECIPIE_ID_STATE),
 					savedInstanceState.getInt(STEP_ID_STATE)
 			);
+			exoPlayerState = savedInstanceState.getLong(VIDEO_PLAYER_STATE);
+			isPlaying = savedInstanceState.getBoolean(VIDEO_PLAYER_PLAYING_STATE);
 		}
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
-		exoPlayer.release();
+		if (exoPlayer != null) {
+			exoPlayer.release();
+		}
 	}
 
 	public void showDetails(boolean showIngredients, int recipeId, int stepId){
@@ -126,17 +142,25 @@ public class FragmentStep extends Fragment{
 			viewModel.getStepByStepIdAndRecipeId(stepId, recipeId).observe(this, new Observer<Step>() {
 				@Override
 				public void onChanged(@Nullable Step step) {
-					Log.d(TAG, "onChanged: ");
 					if (step != null) {
 						description.setText(step.getDescription());
 						description.setVisibility(View.VISIBLE);
-						exoPlayerView.setVisibility(View.VISIBLE);
 						ingredientList.setVisibility(View.GONE);
 
-						setupExoPlayer();
-						setupMedia(Uri.parse(step.getVideoUrl()));
+						if (!TextUtils.isEmpty(step.getThumbnailURL())) {
+							setupExoPlayer();
+							setupMedia(Uri.parse(step.getVideoUrl()));
+							thumbnail.setVisibility(View.GONE);
+							exoPlayerView.setVisibility(View.VISIBLE);
+						}else{
+							Picasso.get()
+									.load(step.getThumbnailURL())
+									.into(thumbnail);
+							thumbnail.setVisibility(View.VISIBLE);
+							exoPlayerView.setVisibility(View.GONE);
+						}
 					}else{
-						Log.d(TAG, "Step null");
+						Log.w(TAG, "Step null");
 					}
 				}
 			});
@@ -199,6 +223,12 @@ public class FragmentStep extends Fragment{
 			MediaSource videoSource = new ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(mediaUri);
 			// Prepare the player with the source.
 			exoPlayer.prepare(videoSource);
+			if (exoPlayerState > 0) {
+				exoPlayer.seekTo(exoPlayerState);
+			}
+			if (isPlaying) {
+				exoPlayer.setPlayWhenReady(isPlaying);
+			}
 		}
 	}
 }

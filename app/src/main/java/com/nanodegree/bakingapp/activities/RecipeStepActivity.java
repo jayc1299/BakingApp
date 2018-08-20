@@ -36,11 +36,15 @@ public class RecipeStepActivity extends AppCompatActivity {
 	public static final String STEP_ID = "stepId";
 	public static final String STEP_NAME = "stepName";
 	private static final String TAG = RecipeStepActivity.class.getSimpleName();
+	private static final String VIDEO_PLAYER_STATE = "video_player_state";
+	private static final String VIDEO_PLAYER_PLAYING_STATE = "video_player_playing_state";
 
 	private RecipeViewModel viewModel;
 	private TextView nextButton;
 	private TextView previousButton;
 	private int currentStepId;
+	private long exoPlayerState = 0L;
+	private boolean isPlaying = false;
 
 	private PlayerView exoPlayerView;
 	private SimpleExoPlayer exoPlayer;
@@ -56,7 +60,6 @@ public class RecipeStepActivity extends AppCompatActivity {
 
 		viewModel = ViewModelProviders.of(this).get(RecipeViewModel.class);
 
-
 		if (getIntent() != null) {
 			//Get recipe name
 			String recipeName = getIntent().getStringExtra(STEP_NAME);
@@ -70,6 +73,24 @@ public class RecipeStepActivity extends AppCompatActivity {
 			Log.d(TAG, "recipeId: " + recipeId);
 			setupStep(recipeId);
 		}
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		if(exoPlayer != null) {
+			outState.putLong(VIDEO_PLAYER_STATE, exoPlayer.getContentPosition());
+			outState.putBoolean(VIDEO_PLAYER_PLAYING_STATE, exoPlayer.getPlayWhenReady());
+		}
+		super.onSaveInstanceState(outState);
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		if(savedInstanceState != null) {
+			exoPlayerState = savedInstanceState.getLong(VIDEO_PLAYER_STATE);
+			isPlaying = savedInstanceState.getBoolean(VIDEO_PLAYER_PLAYING_STATE);
+		}
+		super.onRestoreInstanceState(savedInstanceState);
 	}
 
 	@Override
@@ -130,6 +151,12 @@ public class RecipeStepActivity extends AppCompatActivity {
 		MediaSource videoSource = new ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(mediaUri);
 		// Prepare the player with the source.
 		exoPlayer.prepare(videoSource);
+		if(exoPlayerState > 0){
+			exoPlayer.seekTo(exoPlayerState);
+		}
+		if(isPlaying){
+			exoPlayer.setPlayWhenReady(isPlaying);
+		}
 	}
 
 

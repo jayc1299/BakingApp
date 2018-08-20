@@ -72,7 +72,6 @@ public class FragmentStepList extends Fragment{
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		Log.d(TAG, "onActivityCreated: ");
 		adapter = new AdapterComponents( componentClickListener, recipeDetails);
 		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 		recyclerView.setAdapter(adapter);
@@ -111,8 +110,6 @@ public class FragmentStepList extends Fragment{
 				public void onChanged(@Nullable List<Step> steps) {
 					Log.d(TAG, "onChanged: ");
 					if (steps != null && steps.size() > 0) {
-						//Deliberately removing step 1 so we skip the introduction title.
-						steps.remove(0);
 
 						for (Step step : steps) {
 							recipeDetails.add(step.getShortDescription());
