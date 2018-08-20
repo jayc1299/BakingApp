@@ -13,3 +13,7 @@ https://review.udacity.com/#!/rubrics/829/view
 <a href="https://pixabay.com/en/baking-cupcakes-cup-cake-cooking-1959923/">https://pixabay.com/en/baking-cupcakes-cup-cake-cooking-1959923/</a>
 <br />
 <a href="https://www.publicdomainpictures.net/en/view-image.php?image=37277&picture=cupcake-clipart">https://www.publicdomainpictures.net/en/view-image.php?image=37277&picture=cupcake-clipart</a>
+<br />
+<a href="https://commons.wikimedia.org/wiki/File:Gray_circles.svg">https://commons.wikimedia.org/wiki/File:Gray_circles.svg</a>
+<br />
+<a href="https://svgsilh.com/image/2026645.html">https://svgsilh.com/image/2026645.html</a>

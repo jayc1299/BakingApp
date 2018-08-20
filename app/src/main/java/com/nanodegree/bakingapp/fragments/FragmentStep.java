@@ -170,8 +170,20 @@ public class FragmentStep extends Fragment{
 							thumbnail.setVisibility(View.GONE);
 							exoPlayerView.setVisibility(View.VISIBLE);
 						}else if(!TextUtils.isEmpty(step.getThumbnailURL())){
+							Log.d(TAG, "onChanged: " + step.getThumbnailURL());
 							Picasso.get()
 									.load(step.getThumbnailURL())
+									.placeholder(R.drawable.loading_animation)
+									.error(R.drawable.ic_sad_face)
+									.into(thumbnail);
+							thumbnail.setVisibility(View.VISIBLE);
+							exoPlayerView.setVisibility(View.GONE);
+						}else{
+							//No image, no video
+							Picasso.get()
+									.load(R.drawable.baking_banner)
+									.placeholder(R.drawable.loading_animation)
+									.error(R.drawable.ic_sad_face)
 									.into(thumbnail);
 							thumbnail.setVisibility(View.VISIBLE);
 							exoPlayerView.setVisibility(View.GONE);
@@ -186,6 +198,7 @@ public class FragmentStep extends Fragment{
 
 	private void showIngredients(List<Ingredient> ingredients) {
 		description.setVisibility(View.GONE);
+		thumbnail.setVisibility(View.GONE);
 		exoPlayerView.setVisibility(View.GONE);
 		ingredientList.removeAllViews();
 		ingredientList.setVisibility(View.VISIBLE);
@@ -242,9 +255,11 @@ public class FragmentStep extends Fragment{
 			exoPlayer.prepare(videoSource);
 			if (exoPlayerState > 0) {
 				exoPlayer.seekTo(exoPlayerState);
+				exoPlayerState = 0;
 			}
 			if (isPlaying) {
 				exoPlayer.setPlayWhenReady(isPlaying);
+				isPlaying = false;
 			}
 		}
 	}

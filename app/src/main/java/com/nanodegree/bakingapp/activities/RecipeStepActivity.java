@@ -1,84 +1,61 @@
 package com.nanodegree.bakingapp.activities;
 
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.TextView;
 
-import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.ui.PlayerControlView;
-import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.upstream.BandwidthMeter;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.util.Util;
 import com.nanodegree.bakingapp.R;
-import com.nanodegree.bakingapp.db.RecipeViewModel;
 import com.nanodegree.bakingapp.fragments.FragmentStep;
-import com.nanodegree.bakingapp.holders.Step;
 
 public class RecipeStepActivity extends AppCompatActivity {
 
-	public static final String RECIPE_ID = "recipeId";
-	public static final String STEP_ID = "stepId";
-	public static final String STEP_NAME = "stepName";
-	private static final String TAG = RecipeStepActivity.class.getSimpleName();
+    public static final String RECIPE_ID = "recipeId";
+    public static final String STEP_ID = "stepId";
+    public static final String STEP_NAME = "stepName";
+    private static final String TAG = RecipeStepActivity.class.getSimpleName();
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_step);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_step);
 
-		if (getIntent() != null) {
-			//Get recipe name
-			String recipeName = getIntent().getStringExtra(STEP_NAME);
-			if(recipeName != null && recipeName.length() > 0) {
-				setTitle(recipeName);
-			}
-			//Get step ID
-			int currentStepId = getIntent().getIntExtra(STEP_ID, 0);
-			int recipeId = getIntent().getIntExtra(RECIPE_ID, 0);
-			Log.d(TAG, "stepId: " + currentStepId);
-			Log.d(TAG, "recipeId: " + recipeId);
+        if (getIntent() != null && savedInstanceState == null) {
+            //Get recipe name
+            String recipeName = getIntent().getStringExtra(STEP_NAME);
+            if (recipeName != null && recipeName.length() > 0) {
+                setTitle(recipeName);
+            }
+            //Get step ID
+            int currentStepId = getIntent().getIntExtra(STEP_ID, 0);
+            int recipeId = getIntent().getIntExtra(RECIPE_ID, 0);
+            Log.d(TAG, "stepId: " + currentStepId);
+            Log.d(TAG, "recipeId: " + recipeId);
 
-			FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-			FragmentStep frag = new FragmentStep();
-			Bundle bundle = new Bundle();
-			bundle.putInt(FragmentStep.RECIPE_ID, recipeId);
-			bundle.putInt(FragmentStep.STEP_ID, currentStepId);
-			frag.setArguments(bundle);
-			ft.replace(R.id.activity_step_fragment, frag, frag.getClass().getSimpleName());
-			ft.commit();
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            FragmentStep frag = new FragmentStep();
+            Bundle bundle = new Bundle();
+            bundle.putInt(FragmentStep.RECIPE_ID, recipeId);
+            bundle.putInt(FragmentStep.STEP_ID, currentStepId);
+            frag.setArguments(bundle);
+            ft.replace(R.id.activity_step_fragment, frag, frag.getClass().getSimpleName());
+            ft.commit();
 
-		}
-	}
+        }
+    }
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home: {
-				this.finish();
-				return true;
-			}
-		}
-		return super.onOptionsItemSelected(item);
-	}
-	/*
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home: {
+                this.finish();
+                return true;
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
+    /*
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {

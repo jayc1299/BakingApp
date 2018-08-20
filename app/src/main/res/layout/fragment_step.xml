@@ -24,6 +24,9 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
+            android:scaleType="centerInside"
+            tools:visibility="visible"
+            tools:src="@drawable/ic_gray_circles"
             android:contentDescription="@string/steps_image"
             android:visibility="gone" />
 
