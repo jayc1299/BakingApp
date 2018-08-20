@@ -57,12 +57,16 @@ public class FragmentStep extends Fragment{
 	private TextView description;
 	private LinearLayout ingredientList;
 	private ImageView thumbnail;
+	private View buttonsView;
+	private TextView btnPrevious;
+	private TextView btnNext;
 
 	private boolean showIngredients;
 	private int recipeId = 0;
-	private int stepId = 0;
+	private int currentStepId = 0;
 	private long exoPlayerState = 0L;
 	private boolean isPlaying = false;
+	private boolean isLarge = false;
 
 	private PlayerView exoPlayerView;
 	private SimpleExoPlayer exoPlayer;
@@ -75,20 +79,6 @@ public class FragmentStep extends Fragment{
 		uiUtils = new UiUtils();
 	}
 
-	@Override
-	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-
-		if(getArguments() != null){
-			Bundle bundle = getArguments();
-			recipeId = bundle.getInt(RECIPE_ID, 0);
-			stepId = bundle.getInt(STEP_ID, 0);
-			if(recipeId > 0 && stepId > 0){
-				showDetails(false, recipeId, stepId);
-			}
-		}
-	}
-
 	@Nullable
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -98,15 +88,36 @@ public class FragmentStep extends Fragment{
 		ingredientList = view.findViewById(R.id.fragment_step_ingredients);
 		exoPlayerView = view.findViewById(R.id.fragment_step_movie);
 		thumbnail = view.findViewById(R.id.fragment_step_thumbnail);
+		buttonsView = view.findViewById(R.id.step_buttons);
+		btnPrevious = view.findViewById(R.id.activity_step_previous);
+		btnNext = view.findViewById(R.id.activity_step_next);
 
 		return view;
+	}
+
+	@Override
+	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+
+		isLarge = getResources().getBoolean(R.bool.is_tablet);
+		//Hide buttons on tablet view.
+		buttonsView.setVisibility(isLarge ? View.INVISIBLE : View.VISIBLE);
+
+		if(getArguments() != null){
+			Bundle bundle = getArguments();
+			recipeId = bundle.getInt(RECIPE_ID, 0);
+			currentStepId = bundle.getInt(STEP_ID, 0);
+			if(recipeId > 0 && currentStepId > 0){
+				showDetails(false, recipeId, currentStepId);
+			}
+		}
 	}
 
 	@Override
 	public void onSaveInstanceState(@NonNull Bundle outState) {
 		outState.putBoolean(SHOW_INGREDIENTS_STATE, showIngredients);
 		outState.putInt(RECIPIE_ID_STATE, recipeId);
-		outState.putInt(STEP_ID_STATE, stepId);
+		outState.putInt(STEP_ID_STATE, currentStepId);
 		if(exoPlayer != null) {
 			outState.putLong(VIDEO_PLAYER_STATE, exoPlayer.getContentPosition());
 			outState.putBoolean(VIDEO_PLAYER_PLAYING_STATE, exoPlayer.getPlayWhenReady());
@@ -136,11 +147,11 @@ public class FragmentStep extends Fragment{
 		}
 	}
 
-	public void showDetails(boolean showIngredients, int recipeId, int stepId){
+	public void showDetails(boolean showIngredients, final int recipeId, int stepId){
 		//save these for save instance state
 		this.showIngredients = showIngredients;
 		this.recipeId = recipeId;
-		this.stepId = stepId;
+		currentStepId = stepId;
 
 		Log.d(TAG, "showDetails showIngredients: " + showIngredients);
 		Log.d(TAG, "showDetails recipeId: " + recipeId);
@@ -155,6 +166,9 @@ public class FragmentStep extends Fragment{
 				}
 			});
 		} else {
+			//setup the next and previous buttons
+			findNextStep(recipeId);
+			findPreviousStep(recipeId);
 			//show the step details
 			viewModel.getStepByStepIdAndRecipeId(stepId, recipeId).observe(this, new Observer<Step>() {
 				@Override
@@ -163,6 +177,9 @@ public class FragmentStep extends Fragment{
 						description.setText(step.getDescription());
 						description.setVisibility(View.VISIBLE);
 						ingredientList.setVisibility(View.GONE);
+						if(!isLarge) {
+							updateStepTitle(step);
+						}
 
 						if (!TextUtils.isEmpty(step.getVideoUrl())) {
 							setupExoPlayer();
@@ -261,6 +278,62 @@ public class FragmentStep extends Fragment{
 				exoPlayer.setPlayWhenReady(isPlaying);
 				isPlaying = false;
 			}
+		}
+	}
+
+	private void findNextStep(final int recipeId) {
+		final int nextStepId = currentStepId + 1;
+		viewModel.getStepByStepIdAndRecipeId(nextStepId, recipeId).observe(this, new Observer<Step>() {
+			@Override
+			public void onChanged(@Nullable Step step) {
+				if(step != null) {
+					btnNext.setVisibility(View.VISIBLE);
+					btnNext.setOnClickListener(new View.OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							if (exoPlayer != null) {
+								exoPlayer.stop();
+								exoPlayer.release();
+							}
+							currentStepId = nextStepId;
+							showDetails(false, recipeId, currentStepId);
+						}
+					});
+				}else{
+					btnNext.setVisibility(View.INVISIBLE);
+				}
+			}
+		});
+	}
+
+	private void findPreviousStep(final int recipeId) {
+		final int previousStepId = currentStepId - 1;
+		viewModel.getStepByStepIdAndRecipeId(previousStepId, recipeId).observe(this, new Observer<Step>() {
+			@Override
+			public void onChanged(@Nullable Step step) {
+				if(step != null && step.getId() != 0) {
+					btnPrevious.setVisibility(View.VISIBLE);
+					btnPrevious.setOnClickListener(new View.OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							if (exoPlayer != null) {
+								exoPlayer.stop();
+								exoPlayer.release();
+							}
+							currentStepId = previousStepId;
+							showDetails(false, recipeId, currentStepId);
+						}
+					});
+				}else{
+					btnPrevious.setVisibility(View.INVISIBLE);
+				}
+			}
+		});
+	}
+
+	private void updateStepTitle(Step step){
+		if(getActivity() != null && !getActivity().isFinishing()) {
+			getActivity().setTitle(step.getShortDescription());
 		}
 	}
 }

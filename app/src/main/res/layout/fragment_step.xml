@@ -55,6 +55,8 @@
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="15dp"
         android:orientation="horizontal"
+        android:visibility="invisible"
+        tools:visibility="visible"
         android:weightSum="2">
 
         <TextView
@@ -67,8 +69,7 @@
             android:layout_marginRight="20dp"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="@string/activity_steps_previous"
-            android:visibility="gone" />
+            android:text="@string/activity_steps_previous" />
 
         <TextView
             android:id="@+id/activity_step_next"
@@ -79,7 +80,6 @@
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:layout_weight="1"
-            android:text="@string/activity_steps_next"
-            android:visibility="gone" />
+            android:text="@string/activity_steps_next" />
     </LinearLayout>
 </RelativeLayout>
