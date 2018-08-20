@@ -5,6 +5,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -28,6 +29,7 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.nanodegree.bakingapp.R;
 import com.nanodegree.bakingapp.db.RecipeViewModel;
+import com.nanodegree.bakingapp.fragments.FragmentStep;
 import com.nanodegree.bakingapp.holders.Step;
 
 public class RecipeStepActivity extends AppCompatActivity {
@@ -36,29 +38,11 @@ public class RecipeStepActivity extends AppCompatActivity {
 	public static final String STEP_ID = "stepId";
 	public static final String STEP_NAME = "stepName";
 	private static final String TAG = RecipeStepActivity.class.getSimpleName();
-	private static final String VIDEO_PLAYER_STATE = "video_player_state";
-	private static final String VIDEO_PLAYER_PLAYING_STATE = "video_player_playing_state";
-
-	private RecipeViewModel viewModel;
-	private TextView nextButton;
-	private TextView previousButton;
-	private int currentStepId;
-	private long exoPlayerState = 0L;
-	private boolean isPlaying = false;
-
-	private PlayerView exoPlayerView;
-	private SimpleExoPlayer exoPlayer;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_step);
-
-		nextButton = findViewById(R.id.activity_step_next);
-		previousButton = findViewById(R.id.activity_step_previous);
-		exoPlayerView = findViewById(R.id.exo_player);
-
-		viewModel = ViewModelProviders.of(this).get(RecipeViewModel.class);
 
 		if (getIntent() != null) {
 			//Get recipe name
@@ -67,13 +51,34 @@ public class RecipeStepActivity extends AppCompatActivity {
 				setTitle(recipeName);
 			}
 			//Get step ID
-			currentStepId = getIntent().getIntExtra(STEP_ID, 0);
+			int currentStepId = getIntent().getIntExtra(STEP_ID, 0);
 			int recipeId = getIntent().getIntExtra(RECIPE_ID, 0);
 			Log.d(TAG, "stepId: " + currentStepId);
 			Log.d(TAG, "recipeId: " + recipeId);
-			setupStep(recipeId);
+
+			FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+			FragmentStep frag = new FragmentStep();
+			Bundle bundle = new Bundle();
+			bundle.putInt(FragmentStep.RECIPE_ID, recipeId);
+			bundle.putInt(FragmentStep.STEP_ID, currentStepId);
+			frag.setArguments(bundle);
+			ft.replace(R.id.activity_step_fragment, frag, frag.getClass().getSimpleName());
+			ft.commit();
+
 		}
 	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home: {
+				this.finish();
+				return true;
+			}
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	/*
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
@@ -231,4 +236,5 @@ public class RecipeStepActivity extends AppCompatActivity {
 		longDesc.setText(step.getDescription());
 		setTitle(step.getShortDescription());
 	}
+	*/
 }

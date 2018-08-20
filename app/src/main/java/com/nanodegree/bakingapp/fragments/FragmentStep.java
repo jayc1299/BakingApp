@@ -41,6 +41,9 @@ import java.util.List;
 
 public class FragmentStep extends Fragment{
 
+	public static final String RECIPE_ID = "recipe_id";
+	public static final String STEP_ID = "step_id";
+
 	private static final String TAG = FragmentStep.class.getSimpleName();
 	private static final String SHOW_INGREDIENTS_STATE = "show_ingredients_state";
 	private static final String RECIPIE_ID_STATE = "recipe_id_state";
@@ -70,6 +73,20 @@ public class FragmentStep extends Fragment{
 
 		viewModel = ViewModelProviders.of(this).get(RecipeViewModel.class);
 		uiUtils = new UiUtils();
+	}
+
+	@Override
+	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+
+		if(getArguments() != null){
+			Bundle bundle = getArguments();
+			recipeId = bundle.getInt(RECIPE_ID, 0);
+			stepId = bundle.getInt(STEP_ID, 0);
+			if(recipeId > 0 && stepId > 0){
+				showDetails(false, recipeId, stepId);
+			}
+		}
 	}
 
 	@Nullable
@@ -147,12 +164,12 @@ public class FragmentStep extends Fragment{
 						description.setVisibility(View.VISIBLE);
 						ingredientList.setVisibility(View.GONE);
 
-						if (!TextUtils.isEmpty(step.getThumbnailURL())) {
+						if (!TextUtils.isEmpty(step.getVideoUrl())) {
 							setupExoPlayer();
 							setupMedia(Uri.parse(step.getVideoUrl()));
 							thumbnail.setVisibility(View.GONE);
 							exoPlayerView.setVisibility(View.VISIBLE);
-						}else{
+						}else if(!TextUtils.isEmpty(step.getThumbnailURL())){
 							Picasso.get()
 									.load(step.getThumbnailURL())
 									.into(thumbnail);
